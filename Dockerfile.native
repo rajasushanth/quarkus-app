@@ -1,0 +1,26 @@
+FROM oracle/graalvm-ce:20.1.0-java11 AS build
+RUN yum install -y wget
+
+RUN wget -q http://apachemirror.wuchna.com/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+RUN tar xvf apache-maven-3.6.3-bin.tar.gz -C /usr/local
+
+ENV M2_HOME=/usr/local/apache-maven-3.6.3
+ENV M2=${M2_HOME}/bin
+ENV GRAALVM=${JAVA_HOME}
+ENV PATH=${GRAALVM}:${M2}:${PATH}
+
+RUN gu install native-image
+COPY src /usr/src/app/src
+COPY pom.xml /usr/src/app
+RUN mvn -f /usr/src/app/pom.xml clean package -Pnative
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1
+WORKDIR /work/
+COPY --chown=1001:root --from=build /usr/src/app/target/*-runner /work/application
+
+EXPOSE 8080
+USER 1001
+
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+
+

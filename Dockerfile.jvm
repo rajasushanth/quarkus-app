@@ -1,0 +1,30 @@
+FROM oracle/graalvm-ce:20.1.0-java11 AS build
+RUN yum install -y wget
+
+RUN wget -q http://apachemirror.wuchna.com/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+RUN tar xvf apache-maven-3.6.3-bin.tar.gz -C /usr/local
+
+ENV M2_HOME=/usr/local/apache-maven-3.6.3
+ENV M2=${M2_HOME}/bin
+ENV GRAALVM=${JAVA_HOME}
+ENV PATH=${GRAALVM}:${M2}:${PATH}
+
+RUN gu install native-image
+COPY src /usr/src/app/src
+COPY pom.xml /usr/src/app
+RUN mvn -f /usr/src/app/pom.xml clean package
+
+FROM openjdk:11.0.7-jre-slim
+RUN apt-get update -y && apt-get install -y \
+    dos2unix && apt-get clean
+COPY --from=build /usr/src/app/target/lib/ /usr/app/lib/
+COPY --from=build /usr/src/app/target/quarkus-app-1.0.0-SNAPSHOT-runner.jar /usr/app/quarkus-app-runner.jar
+COPY start.sh /usr/start/
+
+RUN dos2unix /usr/start/start.sh
+RUN chmod +x /usr/start/start.sh
+
+EXPOSE 8080
+ENTRYPOINT ["/usr/start/start.sh"]
+
+
