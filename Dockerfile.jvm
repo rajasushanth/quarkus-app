@@ -9,7 +9,6 @@ ENV M2=${M2_HOME}/bin
 ENV GRAALVM=${JAVA_HOME}
 ENV PATH=${GRAALVM}:${M2}:${PATH}
 
-RUN gu install native-image
 COPY src /usr/src/app/src
 COPY pom.xml /usr/src/app
 RUN mvn -f /usr/src/app/pom.xml clean package
