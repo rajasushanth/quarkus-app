@@ -82,7 +82,7 @@ JVM mode is similar to the Spring boot application's memory requirement. Here, i
 
 ### Performance
 It was quite a disappointment with the native image mode, it exhibited poor performance when compared to JVM mode.
-Although, GraalVM was able to introduce _ahead-of-time_ compilation, it is no match with JVM JIT compiler. Please refer the - - spreadsheet for the benchmark results.
+Although, GraalVM was able to introduce _ahead-of-time_ compilation, it is no match with JVM JIT compiler. Please refer the [Quarkus_benchmark.xlsx](https://github.com/rajasushanth/quarkus-app/blob/master/Quarkus_benchmark.xlsx) spreadsheet for the benchmark results.
 
 On the contrary, Quarkus application in the JVM mode was able to easily surpass the benchmark of the spring boot.
 In fact, it managed to give nearly twice the throughput as in similar spring boot application.
